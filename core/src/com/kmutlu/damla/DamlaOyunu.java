@@ -6,12 +6,15 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 
 public class DamlaOyunu implements ApplicationListener{
 
 	private OrthographicCamera kamera;
 	private SpriteBatch batch;
 	private Texture rsmKova;
+	private Rectangle rctKova;
 
 	@Override
 	public void create() {
@@ -25,6 +28,13 @@ public class DamlaOyunu implements ApplicationListener{
 
 		//SpriteBatch
 		batch = new SpriteBatch();
+
+		//dikdörtgenler
+		rctKova = new Rectangle();
+		rctKova.width = 64;
+		rctKova.height = 64;
+		rctKova.x = 800 / 2 - rctKova.width / 2;
+		rctKova.y = 20;
 	}
 
 	@Override
@@ -41,9 +51,26 @@ public class DamlaOyunu implements ApplicationListener{
 
 		batch.begin();
 
-		batch.draw(rsmKova, 400, 20);
+		batch.draw(rsmKova, rctKova.x, rctKova.y);
 
 		batch.end();
+
+		//Kova dokunduğum yere gelecek.
+		if (Gdx.input.isTouched()){
+
+			//(x, y, z)üç boyutlu vektör
+			Vector3 dokunmaPozisyonu = new Vector3();
+
+			//vektöre dokunulan koordinatları veriyoruz.
+			dokunmaPozisyonu.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+
+			//koordinatları oyuna uyarlar.
+			kamera.unproject(dokunmaPozisyonu);
+
+			//kovayı taşı
+			rctKova.x = dokunmaPozisyonu.x - rctKova.width / 2;
+
+		}
 	}
 
 	@Override
