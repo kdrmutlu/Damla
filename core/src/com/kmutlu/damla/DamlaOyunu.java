@@ -2,6 +2,7 @@ package com.kmutlu.damla;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -23,6 +24,7 @@ public class DamlaOyunu implements ApplicationListener{
 	private Texture rsmDamla;
 	private Array<Rectangle> damlalar;
 	private long sonDamlamaZamani;
+	private Sound sesDamla;
 
 	@Override
 	public void create() {
@@ -34,6 +36,8 @@ public class DamlaOyunu implements ApplicationListener{
 		//resimler
 		rsmKova = new Texture(Gdx.files.internal("kova.png"));
 		rsmDamla = new Texture(Gdx.files.internal("damla.png"));
+
+		sesDamla = Gdx.audio.newSound(Gdx.files.internal("damla.mp3"));
 
 		damlalar = new Array<Rectangle>();
 
@@ -113,12 +117,20 @@ public class DamlaOyunu implements ApplicationListener{
 			if(rctDamla.y + 64 <00){
 				damla.remove();
 			}
+
+			if(rctDamla.overlaps(rctKova)){
+				sesDamla.play();
+				damla.remove();
+			}
 		}
 	}
 
 	@Override
 	public void dispose() {
-
+		rsmDamla.dispose();
+		rsmKova.dispose();
+		sesDamla.dispose();
+		batch.dispose();
 	}
 	@Override
 	public void resize(int width, int height) {
