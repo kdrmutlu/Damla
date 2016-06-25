@@ -6,8 +6,13 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
+
+import java.util.Iterator;
 
 public class DamlaOyunu implements ApplicationListener{
 
@@ -15,6 +20,9 @@ public class DamlaOyunu implements ApplicationListener{
 	private SpriteBatch batch;
 	private Texture rsmKova;
 	private Rectangle rctKova;
+	private Texture rsmDamla;
+	private Array<Rectangle> damlalar;
+	private long sonDamlamaZamani;
 
 	@Override
 	public void create() {
@@ -25,6 +33,9 @@ public class DamlaOyunu implements ApplicationListener{
 
 		//resimler
 		rsmKova = new Texture(Gdx.files.internal("kova.png"));
+		rsmDamla = new Texture(Gdx.files.internal("damla.png"));
+
+		damlalar = new Array<Rectangle>();
 
 		//SpriteBatch
 		batch = new SpriteBatch();
@@ -35,6 +46,20 @@ public class DamlaOyunu implements ApplicationListener{
 		rctKova.height = 64;
 		rctKova.x = 800 / 2 - rctKova.width / 2;
 		rctKova.y = 20;
+
+		damlaUret();
+	}
+
+	private void damlaUret(){
+
+		Rectangle rctDamla = new Rectangle();
+		rctDamla.width = 64;
+		rctDamla.height = 64;
+		rctDamla.x = MathUtils.random(0, 800 - 64);
+		rctDamla.y = 480;
+		damlalar.add(rctDamla);
+		sonDamlamaZamani = TimeUtils.nanoTime();
+
 	}
 
 	@Override
@@ -53,6 +78,10 @@ public class DamlaOyunu implements ApplicationListener{
 
 		batch.draw(rsmKova, rctKova.x, rctKova.y);
 
+		for(Rectangle rctDamla : damlalar){
+			batch.draw(rsmDamla, rctDamla.x, rctDamla.y);
+		}
+
 		batch.end();
 
 		//Kova dokunduğum yere gelecek.
@@ -70,6 +99,20 @@ public class DamlaOyunu implements ApplicationListener{
 			//kovayı taşı
 			rctKova.x = dokunmaPozisyonu.x - rctKova.width / 2;
 
+		}
+
+		if(TimeUtils.nanoTime() - sonDamlamaZamani > 1000000000){
+			damlaUret();
+		}
+
+		Iterator<Rectangle> damla = damlalar.iterator();
+		while (damla.hasNext()){
+			Rectangle rctDamla = damla.next();
+			rctDamla.y -= 200 * Gdx.graphics.getDeltaTime();
+
+			if(rctDamla.y + 64 <00){
+				damla.remove();
+			}
 		}
 	}
 
